@@ -32,3 +32,5 @@ uploads/
 
 # Misc
 *.tsbuildinfo
+.vercel
+.env*.local

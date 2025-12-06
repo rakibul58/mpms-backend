@@ -1,29 +1,9 @@
 import multer, { FileFilterCallback } from 'multer';
-import path from 'path';
-import fs from 'fs';
 import { Request } from 'express';
 import { FILE_UPLOAD } from '../constants';
 import { ApiError } from '../errors';
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Storage configuration
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-  },
-});
-
-// Memory storage for cloud uploads
+// Memory storage for cloud uploads (works on serverless)
 const memoryStorage = multer.memoryStorage();
 
 // File filter for images
@@ -46,7 +26,7 @@ const documentFilter = (_req: Request, file: Express.Multer.File, cb: FileFilter
   }
 };
 
-// Upload configurations
+// Upload configurations (all use memory storage for serverless compatibility)
 export const uploadImage = multer({
   storage: memoryStorage,
   limits: { fileSize: FILE_UPLOAD.MAX_SIZE },
@@ -59,8 +39,9 @@ export const uploadDocument = multer({
   fileFilter: documentFilter,
 });
 
+// For local development only - use memory storage on serverless
 export const uploadLocal = multer({
-  storage,
+  storage: memoryStorage,
   limits: { fileSize: FILE_UPLOAD.MAX_SIZE },
 });
 

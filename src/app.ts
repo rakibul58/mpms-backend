@@ -2,20 +2,39 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from './config';
+import routes from './routes';
 import { globalErrorHandler, notFoundHandler } from './shared/middlewares';
-import router from './routes';
 
 const app: Application = express();
 
 // Security middleware
-app.use(
-  cors({
-    origin: config.cors.frontendUrl,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+const allowedOrigins = [config.cors.frontendUrl, 'http://localhost:3000', 'http://localhost:3001'];
+
+// Add Vercel preview URLs pattern
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Check if origin is allowed or is a Vercel preview URL
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.vercel.sh')
+    ) {
+      return callback(null, true);
+    }
+
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -25,7 +44,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // API routes
-app.use(config.apiPrefix, router);
+app.use(config.apiPrefix, routes);
 
 // Root route
 app.get('/', (_req, res) => {
