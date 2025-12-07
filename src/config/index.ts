@@ -15,6 +15,10 @@ const getEnv = (key: string, defaultValue?: string): string => {
   return value || defaultValue || '';
 };
 
+// JWT expiration values - must match ms package format
+const JWT_ACCESS_EXPIRES = (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as '15m';
+const JWT_REFRESH_EXPIRES = (process.env.JWT_REFRESH_EXPIRES_IN || '7d') as '7d';
+
 export const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '5000', 10),
@@ -27,8 +31,8 @@ export const config = {
   jwt: {
     accessSecret: getEnv('JWT_ACCESS_SECRET'),
     refreshSecret: getEnv('JWT_REFRESH_SECRET'),
-    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+    accessExpiresIn: JWT_ACCESS_EXPIRES,
+    refreshExpiresIn: JWT_REFRESH_EXPIRES,
   },
 
   bcrypt: {
@@ -52,6 +56,7 @@ export const config = {
     pass: process.env.SMTP_PASS,
     from: process.env.EMAIL_FROM,
   },
-} as const;
+};
 
+export default config;
 export type Config = typeof config;

@@ -1,20 +1,21 @@
 import { PAGINATION } from '../constants';
 import { IPaginationOptions, IPaginatedResult } from '../interfaces';
 
-interface RawPaginationQuery {
+export interface RawPaginationQuery {
   page?: string;
   limit?: string;
   sortBy?: string;
   sortOrder?: string;
+  [key: string]: unknown | any; // Allow additional properties
 }
 
 export const parsePagination = (query: RawPaginationQuery): IPaginationOptions => {
-  const page = Math.max(1, parseInt(query.page || '') || PAGINATION.DEFAULT_PAGE);
+  const page = Math.max(1, parseInt(String(query.page || '')) || PAGINATION.DEFAULT_PAGE);
   const limit = Math.min(
     PAGINATION.MAX_LIMIT,
-    Math.max(1, parseInt(query.limit || '') || PAGINATION.DEFAULT_LIMIT)
+    Math.max(1, parseInt(String(query.limit || '')) || PAGINATION.DEFAULT_LIMIT)
   );
-  const sortBy = query.sortBy || 'createdAt';
+  const sortBy = String(query.sortBy || 'createdAt');
   const sortOrder = query.sortOrder === 'asc' ? 'asc' : 'desc';
 
   return { page, limit, sortBy, sortOrder };

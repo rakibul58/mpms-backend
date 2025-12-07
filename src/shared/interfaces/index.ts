@@ -5,7 +5,7 @@ import { UserRole } from '../constants';
 // JWT Payload interface
 export interface IJwtPayload {
   userId: string;
-  email: string;
+  email?: string;
   role: UserRole;
 }
 
