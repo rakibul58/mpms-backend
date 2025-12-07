@@ -1,0 +1,89 @@
+import { Router } from 'express';
+import * as projectController from './project.controller';
+import { authenticate, authorize } from '../../shared/middlewares/auth';
+import { validateRequest } from '../../shared/middlewares/validateRequest';
+import {
+  createProjectSchema,
+  updateProjectSchema,
+  queryProjectsSchema,
+  projectIdParamSchema,
+  projectIdOrSlugParamSchema,
+  updateTeamMembersSchema,
+} from './project.validation';
+import { USER_ROLES } from '../../shared/constants';
+
+const router = Router();
+
+// All routes require authentication
+router.use(authenticate);
+
+// Get user's projects (any authenticated user)
+router.get(
+  '/my-projects',
+  validateRequest({ query: queryProjectsSchema }),
+  projectController.getMyProjects
+);
+
+// Get all projects (Admin/Manager only)
+router.get(
+  '/',
+  authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
+  validateRequest({ query: queryProjectsSchema }),
+  projectController.getProjects
+);
+
+// Create project (Admin/Manager only)
+router.post(
+  '/',
+  authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
+  validateRequest({ body: createProjectSchema }),
+  projectController.createProject
+);
+
+// Get project by ID or slug
+router.get(
+  '/:idOrSlug',
+  validateRequest({ params: projectIdOrSlugParamSchema }),
+  projectController.getProject
+);
+
+// Get project with stats
+router.get(
+  '/:idOrSlug/stats',
+  validateRequest({ params: projectIdOrSlugParamSchema }),
+  projectController.getProjectWithStats
+);
+
+// Update project (Admin/Manager only)
+router.patch(
+  '/:id',
+  authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
+  validateRequest({ params: projectIdParamSchema, body: updateProjectSchema }),
+  projectController.updateProject
+);
+
+// Delete project (Admin only)
+router.delete(
+  '/:id',
+  authorize(USER_ROLES.ADMIN),
+  validateRequest({ params: projectIdParamSchema }),
+  projectController.deleteProject
+);
+
+// Add team members (Admin/Manager only)
+router.post(
+  '/:id/team-members',
+  authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
+  validateRequest({ params: projectIdParamSchema, body: updateTeamMembersSchema }),
+  projectController.addTeamMembers
+);
+
+// Remove team members (Admin/Manager only)
+router.delete(
+  '/:id/team-members',
+  authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
+  validateRequest({ params: projectIdParamSchema, body: updateTeamMembersSchema }),
+  projectController.removeTeamMembers
+);
+
+export default router;

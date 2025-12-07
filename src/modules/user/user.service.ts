@@ -1,9 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { User, IUserDocument } from './user.model';
 import { ApiError } from '../../shared/errors';
 import { UpdateUserInput, QueryUsersInput } from './user.validation';
 import { IPaginationOptions, IPaginatedResult } from '../../shared/interfaces';
 import { parsePagination, createPaginatedResult, calculateSkip } from '../../shared/utils';
+import { Project } from '../project';
 
 // Create user
 export const createUser = async (data: {
@@ -181,14 +182,10 @@ export const getUserStats = async (): Promise<{
 };
 
 // Get user's projects
-// export const getUserProjects = async (userId: string) => {
-//   const userObjectId = new Types.ObjectId(userId);
+export const getUserProjects = async (userId: string) => {
+  const userObjectId = new Types.ObjectId(userId);
 
-//   return Project.find({
-//     $or: [
-//       { createdBy: userObjectId },
-//       { teamMembers: userObjectId },
-//       { managers: userObjectId },
-//     ],
-//   }).populate('createdBy', 'name email');
-// };
+  return Project.find({
+    $or: [{ createdBy: userObjectId }, { teamMembers: userObjectId }, { managers: userObjectId }],
+  }).populate('createdBy', 'name email');
+};

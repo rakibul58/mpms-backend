@@ -87,14 +87,16 @@ export const queryUsersSchema = z.object({
 
 // Change password validation
 export const changePasswordSchema = z.object({
-  body: z.object({
-    currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: passwordSchema,
-    confirmPassword: z.string().min(1, 'Confirm password is required'),
-  }).refine(data => data.newPassword === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  }),
+  body: z
+    .object({
+      currentPassword: z.string().min(1, 'Current password is required'),
+      newPassword: passwordSchema,
+      confirmPassword: z.string().min(1, 'Confirm password is required'),
+    })
+    .refine(data => data.newPassword === data.confirmPassword, {
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+    }),
 });
 
 // Types

@@ -19,11 +19,7 @@ router.use(authenticate);
 
 // Profile routes (any authenticated user)
 router.get('/profile', userController.getProfile);
-router.patch(
-  '/profile',
-  validateRequest({ body: updateUserSchema }),
-  userController.updateProfile
-);
+router.patch('/profile', validateRequest({ body: updateUserSchema }), userController.updateProfile);
 
 // Change password
 router.post(
@@ -43,11 +39,7 @@ router.get(
   userController.getUsers
 );
 
-router.get(
-  '/stats',
-  authorize(USER_ROLES.ADMIN),
-  userController.getUserStats
-);
+router.get('/stats', authorize(USER_ROLES.ADMIN), userController.getUserStats);
 
 router.get(
   '/:id',

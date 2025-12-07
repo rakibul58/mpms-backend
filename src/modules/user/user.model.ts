@@ -97,7 +97,7 @@ const userSchema = new Schema<IUserDocument>(
 );
 
 // Index for better query performance
-userSchema.index({ email: 1 });
+// userSchema.index({ email: 1 });
 userSchema.index({ role: 1, isActive: 1 });
 userSchema.index({ department: 1 });
 
