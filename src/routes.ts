@@ -5,6 +5,8 @@ import { userRoutes } from './modules/user';
 import { projectRoutes } from './modules/project';
 import { sprintRoutes } from './modules/sprint';
 import { taskRoutes } from './modules/task';
+import { commentRoutes } from './modules/comment';
+import { reportRoutes } from './modules/report';
 
 const router = Router();
 
@@ -38,6 +40,14 @@ const moduleRoutes = [
   {
     path: '/tasks',
     route: taskRoutes,
+  },
+  {
+    path: '/comments',
+    route: commentRoutes,
+  },
+  {
+    path: '/reports',
+    route: reportRoutes,
   },
 ];
 
