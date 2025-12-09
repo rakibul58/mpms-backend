@@ -24,7 +24,7 @@ router.patch('/profile', validateRequest({ body: updateUserSchema }), userContro
 // Change password
 router.post(
   '/change-password',
-  validateRequest({ body: changePasswordSchema }),
+  validateRequest(changePasswordSchema),
   userController.changePassword
 );
 

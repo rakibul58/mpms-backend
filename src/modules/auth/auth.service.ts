@@ -69,8 +69,6 @@ export const login = async (data: LoginInput) => {
   // Find user
   const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
-  console.log('User found during login:', user);
-
   if (!user) {
     throw ApiError.unauthorized('Invalid email or password');
   }
@@ -80,12 +78,9 @@ export const login = async (data: LoginInput) => {
     throw ApiError.forbidden('Your account has been deactivated');
   }
 
-  console.log('User is active, proceeding to password verification.');
-
   // Verify password
   const isPasswordValid = await user.comparePassword(password);
 
-  console.log({ isPasswordValid });
   if (!isPasswordValid) {
     throw ApiError.unauthorized('Invalid email or password');
   }
