@@ -1,15 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
+import { ZodError } from 'zod';
 import { ApiError } from '../errors';
 
-interface ValidationSchema {
-  body?: AnyZodObject;
-  query?: AnyZodObject;
-  params?: AnyZodObject;
-  cookies?: AnyZodObject;
-}
-
-export const validateRequest = (schema: ValidationSchema) => {
+export const validateRequest = (schema: any) => {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
       if (schema.body) {

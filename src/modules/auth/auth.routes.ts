@@ -13,15 +13,11 @@ import { USER_ROLES } from '../../shared/constants';
 const router = Router();
 
 // Public routes
-router.post('/register', validateRequest({ body: registerSchema }), authController.register);
+router.post('/register', validateRequest(registerSchema), authController.register);
 
-router.post('/login', validateRequest({ body: loginSchema }), authController.login);
+router.post('/login', validateRequest(loginSchema), authController.login);
 
-router.post(
-  '/refresh-token',
-  validateRequest({ body: refreshTokenSchema }),
-  authController.refreshTokens
-);
+router.post('/refresh-token', validateRequest(refreshTokenSchema), authController.refreshTokens);
 
 // Protected routes
 router.post('/logout', authenticate, authController.logout);
@@ -33,7 +29,7 @@ router.post(
   '/admin/create-user',
   authenticate,
   authorize(USER_ROLES.ADMIN),
-  validateRequest({ body: adminCreateUserSchema }),
+  validateRequest(adminCreateUserSchema),
   authController.adminCreateUser
 );
 

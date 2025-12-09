@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -33,13 +32,13 @@ const seedDatabase = async (): Promise<void> => {
     ]);
     console.info('Cleared existing data');
 
-    // Create users
-    const hashedPassword = await bcrypt.hash('Password123', 12);
+    // Create users - use plain password, the model's pre-save hook will hash it
+    const plainPassword = 'Password123';
 
     const admin = await User.create({
       name: 'Admin User',
       email: 'admin@mpms.com',
-      password: hashedPassword,
+      password: plainPassword,
       role: USER_ROLES.ADMIN,
       department: 'Management',
       skills: ['Leadership', 'Project Management'],
@@ -49,7 +48,7 @@ const seedDatabase = async (): Promise<void> => {
     const manager = await User.create({
       name: 'Manager User',
       email: 'manager@mpms.com',
-      password: hashedPassword,
+      password: plainPassword,
       role: USER_ROLES.MANAGER,
       department: 'Engineering',
       skills: ['Agile', 'Scrum', 'Technical Leadership'],
@@ -59,7 +58,7 @@ const seedDatabase = async (): Promise<void> => {
     const member1 = await User.create({
       name: 'John Developer',
       email: 'john@mpms.com',
-      password: hashedPassword,
+      password: plainPassword,
       role: USER_ROLES.MEMBER,
       department: 'Engineering',
       skills: ['React', 'Node.js', 'TypeScript'],
@@ -69,7 +68,7 @@ const seedDatabase = async (): Promise<void> => {
     const member2 = await User.create({
       name: 'Jane Designer',
       email: 'jane@mpms.com',
-      password: hashedPassword,
+      password: plainPassword,
       role: USER_ROLES.MEMBER,
       department: 'Design',
       skills: ['UI/UX', 'Figma', 'Adobe XD'],
