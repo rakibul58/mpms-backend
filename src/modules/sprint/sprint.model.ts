@@ -33,7 +33,6 @@ const sprintSchema = new Schema<ISprintDocument>(
     },
     sprintNumber: {
       type: Number,
-      required: true,
     },
     project: {
       type: Schema.Types.ObjectId,

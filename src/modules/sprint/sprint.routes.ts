@@ -20,7 +20,7 @@ router.use(authenticate);
 router.post(
   '/',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ body: createSprintSchema }),
+  validateRequest(createSprintSchema),
   sprintController.createSprint
 );
 

@@ -59,8 +59,15 @@ const projectSchema = new Schema<IProjectDocument>(
     endDate: {
       type: Date,
       validate: {
-        validator: function (this: IProjectDocument, value: Date) {
-          return !value || value >= this.startDate;
+        validator: function (this: IProjectDocument, value: Date | null | undefined) {
+          // Only validate if endDate has a value
+          if (!value) return true;
+
+          // Ensure startDate exists before comparing
+          if (!this.startDate) return true;
+
+          // Compare dates
+          return new Date(value) >= new Date(this.startDate);
         },
         message: 'End date must be after start date',
       },

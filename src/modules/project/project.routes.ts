@@ -18,17 +18,13 @@ const router = Router();
 router.use(authenticate);
 
 // Get user's projects (any authenticated user)
-router.get(
-  '/my-projects',
-  validateRequest({ query: queryProjectsSchema }),
-  projectController.getMyProjects
-);
+router.get('/my-projects', validateRequest(queryProjectsSchema), projectController.getMyProjects);
 
 // Get all projects (Admin/Manager only)
 router.get(
   '/',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ query: queryProjectsSchema }),
+  validateRequest(queryProjectsSchema),
   projectController.getProjects
 );
 
@@ -36,7 +32,7 @@ router.get(
 router.post(
   '/',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ body: createProjectSchema }),
+  validateRequest(createProjectSchema),
   projectController.createProject
 );
 
@@ -58,7 +54,7 @@ router.get(
 router.patch(
   '/:id',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ params: projectIdParamSchema, body: updateProjectSchema }),
+  validateRequest({ projectIdParamSchema, updateProjectSchema }),
   projectController.updateProject
 );
 
@@ -74,7 +70,7 @@ router.delete(
 router.post(
   '/:id/team-members',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ params: projectIdParamSchema, body: updateTeamMembersSchema }),
+  validateRequest({ projectIdParamSchema, updateTeamMembersSchema }),
   projectController.addTeamMembers
 );
 
