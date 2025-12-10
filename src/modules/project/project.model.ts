@@ -16,6 +16,7 @@ export interface IProject {
   createdBy: Types.ObjectId;
   teamMembers: Types.ObjectId[];
   managers: Types.ObjectId[];
+  progress?: number;
 }
 
 export interface IProjectDocument extends IProject, Document {

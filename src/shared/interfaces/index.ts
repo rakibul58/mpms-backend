@@ -72,3 +72,9 @@ export interface IUploadedFile {
   mimetype: string;
   size: number;
 }
+
+export interface MyTasksFilters {
+  searchTerm?: string;
+  priority?: string;
+  status?: string;
+}

@@ -14,23 +14,19 @@ router.use(authenticate);
 
 router.get(
   '/task/:taskId',
-  validateRequest({ params: taskIdParamSchema }),
+  validateRequest(taskIdParamSchema),
   commentController.getCommentsByTask
 );
 router.post(
   '/task/:taskId',
-  validateRequest({ params: taskIdParamSchema, body: createCommentSchema }),
+  validateRequest({ taskIdParamSchema, createCommentSchema }),
   commentController.createComment
 );
 router.patch(
   '/:id',
-  validateRequest({ params: commentIdParamSchema, body: updateCommentSchema }),
+  validateRequest({ commentIdParamSchema, updateCommentSchema }),
   commentController.updateComment
 );
-router.delete(
-  '/:id',
-  validateRequest({ params: commentIdParamSchema }),
-  commentController.deleteComment
-);
+router.delete('/:id', validateRequest(commentIdParamSchema), commentController.deleteComment);
 
 export default router;

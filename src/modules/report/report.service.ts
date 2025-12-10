@@ -27,6 +27,47 @@ export const getDashboardStats = async () => {
     .limit(5)
     .select('title status');
 
+  // Get project IDs for progress calculation
+  const projectIds = recentProjects.map(p => p._id);
+
+  // Single aggregation to get task counts for all recent projects
+  const projectTaskStats = await Task.aggregate([
+    { $match: { project: { $in: projectIds } } },
+    {
+      $group: {
+        _id: '$project',
+        totalTasks: { $sum: 1 },
+        completedTasks: {
+          $sum: { $cond: [{ $eq: ['$status', TASK_STATUS.DONE] }, 1, 0] }
+        }
+      }
+    }
+  ]);
+
+  // Create a map for quick lookup
+  const taskStatsMap = projectTaskStats.reduce((acc, stat) => {
+    acc[stat._id.toString()] = {
+      total: stat.totalTasks,
+      completed: stat.completedTasks
+    };
+    return acc;
+  }, {} as Record<string, { total: number; completed: number }>);
+
+  // Calculate progress for each project
+  const recentProjectsWithProgress = recentProjects.map(project => {
+    const stats = taskStatsMap[project._id.toString()];
+    const progress = stats && stats.total > 0
+      ? Math.round((stats.completed / stats.total) * 100)
+      : 0;
+
+    return {
+      _id: project._id,
+      title: project.title,
+      status: project.status,
+      progress,
+    };
+  });
+
   const upcomingDeadlines = await Task.find({
     dueDate: { $gte: new Date(), $lte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
     status: { $ne: TASK_STATUS.DONE },
@@ -50,12 +91,7 @@ export const getDashboardStats = async () => {
     projectsByStatus: toObject(projectsByStatus),
     tasksByStatus: toObject(tasksByStatus),
     tasksByPriority: toObject(tasksByPriority),
-    recentProjects: recentProjects.map(p => ({
-      _id: p._id,
-      title: p.title,
-      status: p.status,
-      progress: 0,
-    })),
+    recentProjects: recentProjectsWithProgress,
     upcomingDeadlines,
   };
 };

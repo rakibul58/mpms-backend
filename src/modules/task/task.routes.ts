@@ -22,55 +22,55 @@ router.get('/my-tasks', taskController.getMyTasks);
 router.post(
   '/',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ body: createTaskSchema }),
+  validateRequest(createTaskSchema),
   taskController.createTask
 );
 router.get(
   '/project/:projectId',
-  validateRequest({ params: projectIdParamSchema }),
+  validateRequest(projectIdParamSchema),
   taskController.getTasksByProject
 );
 router.get(
   '/project/:projectId/kanban',
-  validateRequest({ params: projectIdParamSchema }),
+  validateRequest(projectIdParamSchema),
   taskController.getKanbanTasks
 );
 router.get(
   '/sprint/:sprintId',
-  validateRequest({ params: sprintIdParamSchema }),
+  validateRequest(sprintIdParamSchema),
   taskController.getTasksBySprint
 );
-router.get('/:id', validateRequest({ params: taskIdParamSchema }), taskController.getTask);
+router.get('/:id', validateRequest(taskIdParamSchema), taskController.getTask);
 router.patch(
   '/:id',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ params: taskIdParamSchema, body: updateTaskSchema }),
+  validateRequest({ taskIdParamSchema, updateTaskSchema }),
   taskController.updateTask
 );
 router.patch(
   '/:id/status',
-  validateRequest({ params: taskIdParamSchema, body: updateTaskStatusSchema }),
+  validateRequest({ taskIdParamSchema, updateTaskStatusSchema }),
   taskController.updateTaskStatus
 );
 router.post(
   '/:id/log-time',
-  validateRequest({ params: taskIdParamSchema, body: logTimeSchema }),
+  validateRequest({ taskIdParamSchema, logTimeSchema }),
   taskController.logTime
 );
 router.delete(
   '/:id',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ params: taskIdParamSchema }),
+  validateRequest(taskIdParamSchema),
   taskController.deleteTask
 );
 router.post(
   '/:id/subtasks',
-  validateRequest({ params: taskIdParamSchema, body: subtaskSchema }),
+  validateRequest({ taskIdParamSchema, subtaskSchema }),
   taskController.addSubtask
 );
 router.patch(
   '/:id/subtasks/:subtaskId',
-  validateRequest({ body: updateSubtaskSchema }),
+  validateRequest(updateSubtaskSchema),
   taskController.updateSubtask
 );
 router.delete('/:id/subtasks/:subtaskId', taskController.deleteSubtask);

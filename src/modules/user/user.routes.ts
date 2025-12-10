@@ -35,7 +35,7 @@ router.get('/team-members', userController.getTeamMembers);
 router.get(
   '/',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ query: queryUsersSchema }),
+  validateRequest(queryUsersSchema),
   userController.getUsers
 );
 
@@ -44,35 +44,35 @@ router.get('/stats', authorize(USER_ROLES.ADMIN), userController.getUserStats);
 router.get(
   '/:id',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ params: userIdParamSchema }),
+  validateRequest(userIdParamSchema),
   userController.getUserById
 );
 
 router.post(
   '/',
   authorize(USER_ROLES.ADMIN),
-  validateRequest({ body: createUserSchema }),
+  validateRequest(createUserSchema),
   userController.createUser
 );
 
 router.patch(
   '/:id',
   authorize(USER_ROLES.ADMIN),
-  validateRequest({ params: userIdParamSchema, body: updateUserSchema }),
+  validateRequest({ userIdParamSchema, updateUserSchema }),
   userController.updateUser
 );
 
 router.patch(
   '/:id/role',
   authorize(USER_ROLES.ADMIN),
-  validateRequest({ params: userIdParamSchema, body: updateUserRoleSchema }),
+  validateRequest({ userIdParamSchema, updateUserRoleSchema }),
   userController.updateUserRole
 );
 
 router.delete(
   '/:id',
   authorize(USER_ROLES.ADMIN),
-  validateRequest({ params: userIdParamSchema }),
+  validateRequest(userIdParamSchema),
   userController.deleteUser
 );
 

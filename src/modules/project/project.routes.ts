@@ -37,16 +37,12 @@ router.post(
 );
 
 // Get project by ID or slug
-router.get(
-  '/:idOrSlug',
-  validateRequest({ params: projectIdOrSlugParamSchema }),
-  projectController.getProject
-);
+router.get('/:idOrSlug', validateRequest(projectIdOrSlugParamSchema), projectController.getProject);
 
 // Get project with stats
 router.get(
   '/:idOrSlug/stats',
-  validateRequest({ params: projectIdOrSlugParamSchema }),
+  validateRequest(projectIdOrSlugParamSchema),
   projectController.getProjectWithStats
 );
 
@@ -62,7 +58,7 @@ router.patch(
 router.delete(
   '/:id',
   authorize(USER_ROLES.ADMIN),
-  validateRequest({ params: projectIdParamSchema }),
+  validateRequest(projectIdParamSchema),
   projectController.deleteProject
 );
 
@@ -78,7 +74,7 @@ router.post(
 router.delete(
   '/:id/team-members',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ params: projectIdParamSchema, body: updateTeamMembersSchema }),
+  validateRequest({ projectIdParamSchema, updateTeamMembersSchema }),
   projectController.removeTeamMembers
 );
 

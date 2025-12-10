@@ -46,7 +46,15 @@ export const getTasksBySprint = catchAsync(async (req: Request, res: Response) =
 });
 
 export const getMyTasks = catchAsync(async (req: IAuthRequest, res: Response) => {
-  const tasks = await taskService.getMyTasks(req.user!.userId);
+  const userId = req.user!.userId;
+  const { searchTerm, priority, status } = req.query;
+
+  const tasks = await taskService.getMyTasks(userId, {
+    searchTerm: searchTerm as string,
+    priority: priority as string,
+    status: status as string,
+  });
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

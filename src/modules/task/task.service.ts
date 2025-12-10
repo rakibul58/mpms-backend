@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose, { Types } from 'mongoose';
 import { Task, ITaskDocument } from './task.model';
 import { Project } from '../project/project.model';
 import { ApiError } from '../../shared/errors';
 import { CreateTaskInput, UpdateTaskInput } from './task.validation';
 import { TASK_STATUS } from '../../shared/constants';
+import { MyTasksFilters } from '../../shared/interfaces';
 
 export const createTask = async (data: CreateTaskInput, userId: string): Promise<ITaskDocument> => {
   const project = await Project.findById(data.projectId);
@@ -54,11 +56,41 @@ export const getTasksBySprint = async (sprintId: string): Promise<ITaskDocument[
     .sort({ order: 1 });
 };
 
-export const getMyTasks = async (userId: string): Promise<ITaskDocument[]> => {
-  return Task.find({ assignees: new Types.ObjectId(userId) })
+export const getMyTasks = async (
+  userId: string, 
+  filters: MyTasksFilters = {}
+): Promise<ITaskDocument[]> => {
+  const query: any = { 
+    assignees: new Types.ObjectId(userId) 
+  };
+  
+  // Apply status filter
+  if (filters.status) {
+    query.status = filters.status;
+  }
+  
+  // Apply priority filter
+  if (filters.priority) {
+    query.priority = filters.priority;
+  }
+  
+  // Build the base query
+  let taskQuery = Task.find(query)
     .populate('project', 'title slug')
-    .populate('sprint', 'title sprintNumber')
-    .sort({ dueDate: 1, priority: -1 });
+    .populate('sprint', 'title sprintNumber');
+  
+  // Apply search filter (searches in title and description)
+  if (filters.searchTerm && filters.searchTerm.trim()) {
+    taskQuery = taskQuery.find({
+      $or: [
+        { title: { $regex: filters.searchTerm, $options: 'i' } },
+        { description: { $regex: filters.searchTerm, $options: 'i' } }
+      ]
+    });
+  }
+  
+  // Sort by due date and priority
+  return taskQuery.sort({ dueDate: 1, priority: -1 });
 };
 
 export const updateTask = async (id: string, data: UpdateTaskInput): Promise<ITaskDocument> => {

@@ -27,14 +27,14 @@ router.post(
 // Get sprints by project
 router.get(
   '/project/:projectId',
-  validateRequest({ params: projectIdParamSchema }),
+  validateRequest(projectIdParamSchema),
   sprintController.getSprintsByProject
 );
 
 // Get active sprint
 router.get(
   '/project/:projectId/active',
-  validateRequest({ params: projectIdParamSchema }),
+  validateRequest(projectIdParamSchema),
   sprintController.getActiveSprint
 );
 
@@ -42,25 +42,21 @@ router.get(
 router.patch(
   '/project/:projectId/reorder',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ params: projectIdParamSchema, body: reorderSprintsSchema }),
+  validateRequest({ projectIdParamSchema, reorderSprintsSchema }),
   sprintController.reorderSprints
 );
 
 // Get sprint by ID
-router.get('/:id', validateRequest({ params: sprintIdParamSchema }), sprintController.getSprint);
+router.get('/:id', validateRequest(sprintIdParamSchema), sprintController.getSprint);
 
 // Get sprint stats
-router.get(
-  '/:id/stats',
-  validateRequest({ params: sprintIdParamSchema }),
-  sprintController.getSprintStats
-);
+router.get('/:id/stats', validateRequest(sprintIdParamSchema), sprintController.getSprintStats);
 
 // Update sprint (Admin/Manager)
 router.patch(
   '/:id',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ params: sprintIdParamSchema, body: updateSprintSchema }),
+  validateRequest({ sprintIdParamSchema, updateSprintSchema }),
   sprintController.updateSprint
 );
 
@@ -68,7 +64,7 @@ router.patch(
 router.delete(
   '/:id',
   authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER),
-  validateRequest({ params: sprintIdParamSchema }),
+  validateRequest(sprintIdParamSchema),
   sprintController.deleteSprint
 );
 

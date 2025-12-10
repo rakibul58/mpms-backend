@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose, { Types } from 'mongoose';
 import { Project, IProjectDocument } from './project.model';
 import { Task } from '../task/task.model';
@@ -67,14 +68,39 @@ export const getProjectByIdOrSlug = async (idOrSlug: string): Promise<IProjectDo
   return getProjectBySlug(idOrSlug);
 };
 
-// Query projects with pagination and filters
+const calculateProjectsProgress = async (
+  projectIds: Types.ObjectId[]
+): Promise<Record<string, number>> => {
+  const taskStats = await Task.aggregate([
+    { $match: { project: { $in: projectIds } } },
+    {
+      $group: {
+        _id: '$project',
+        totalTasks: { $sum: 1 },
+        completedTasks: {
+          $sum: { $cond: [{ $eq: ['$status', TASK_STATUS.DONE] }, 1, 0] },
+        },
+      },
+    },
+  ]);
+
+  return taskStats.reduce(
+    (acc, stat) => {
+      const progress =
+        stat.totalTasks > 0 ? Math.round((stat.completedTasks / stat.totalTasks) * 100) : 0;
+      acc[stat._id.toString()] = progress;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+};
+
 export const queryProjects = async (
   queryParams: QueryProjectsInput
-): Promise<IPaginatedResult<IProjectDocument>> => {
+): Promise<IPaginatedResult<any>> => {
   const paginationOptions: IPaginationOptions = parsePagination(queryParams);
   const { searchTerm, status, client, startDateFrom, startDateTo } = queryParams;
 
-  // Build filter query
   const filter: Record<string, unknown> = {};
 
   if (searchTerm) {
@@ -103,12 +129,10 @@ export const queryProjects = async (
     }
   }
 
-  // Build sort object
   const sort: Record<string, 1 | -1> = {
     [paginationOptions.sortBy || 'createdAt']: paginationOptions.sortOrder === 'asc' ? 1 : -1,
   };
 
-  // Execute query
   const [projects, total] = await Promise.all([
     Project.find(filter)
       .populate('createdBy', 'name email')
@@ -116,24 +140,31 @@ export const queryProjects = async (
       .populate('managers', 'name email')
       .sort(sort)
       .skip(calculateSkip(paginationOptions.page, paginationOptions.limit))
-      .limit(paginationOptions.limit),
+      .limit(paginationOptions.limit)
+      .lean(),
     Project.countDocuments(filter),
   ]);
 
-  return createPaginatedResult(projects, total, paginationOptions);
+  const projectIds = projects.map(p => p._id);
+  const progressMap = await calculateProjectsProgress(projectIds);
+
+  const projectsWithProgress = projects.map(project => ({
+    ...project,
+    progress: progressMap[project._id.toString()] || 0,
+  }));
+
+  return createPaginatedResult(projectsWithProgress, total, paginationOptions);
 };
 
-// Get user's projects
 export const getUserProjects = async (
   userId: string,
   queryParams: QueryProjectsInput
-): Promise<IPaginatedResult<IProjectDocument>> => {
+): Promise<IPaginatedResult<any>> => {
   const paginationOptions: IPaginationOptions = parsePagination(queryParams);
   const { searchTerm, status } = queryParams;
 
   const userObjectId = new Types.ObjectId(userId);
 
-  // Build filter for user's projects (member, manager, or creator)
   const filter: Record<string, unknown> = {
     $or: [{ createdBy: userObjectId }, { teamMembers: userObjectId }, { managers: userObjectId }],
   };
@@ -163,11 +194,20 @@ export const getUserProjects = async (
       .populate('managers', 'name email')
       .sort(sort)
       .skip(calculateSkip(paginationOptions.page, paginationOptions.limit))
-      .limit(paginationOptions.limit),
+      .limit(paginationOptions.limit)
+      .lean(),
     Project.countDocuments(filter),
   ]);
 
-  return createPaginatedResult(projects, total, paginationOptions);
+  const projectIds = projects.map(p => p._id);
+  const progressMap = await calculateProjectsProgress(projectIds);
+
+  const projectsWithProgress = projects.map(project => ({
+    ...project,
+    progress: progressMap[project._id.toString()] || 0,
+  }));
+
+  return createPaginatedResult(projectsWithProgress, total, paginationOptions);
 };
 
 // Update project
