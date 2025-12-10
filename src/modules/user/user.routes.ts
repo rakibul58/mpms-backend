@@ -19,7 +19,7 @@ router.use(authenticate);
 
 // Profile routes (any authenticated user)
 router.get('/profile', userController.getProfile);
-router.patch('/profile', validateRequest({ body: updateUserSchema }), userController.updateProfile);
+router.patch('/profile', validateRequest(updateUserSchema), userController.updateProfile);
 
 // Change password
 router.post(
